@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的網頁程式作品集 | Portfolio Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-bg: #fff0f5;
+            --pink-primary: #ff69b4;
+            --pink-hover: #ff1493;
+            --pink-glow: rgba(2ff, 105, 180, 0.4);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e9 50%, #fce4ec 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景流動氣泡/光暈動畫 */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: #ffb6c1;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: #ffdae9;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 30%;
+            width: 35vw;
+            height: 35vw;
+            background: #f8bbd0;
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* 已解鎖關卡卡片 Hover 動畫 */
+        .unlocked-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 182, 193, 0.6);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unlocked-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.8),
+                transparent
+            );
+            transform: rotate(45deg) translateY(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .unlocked-card:hover::before {
+            transform: rotate(45deg) translateY(100%);
+        }
+
+        .unlocked-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #ff69b4;
+            box-shadow: 0 15px 30px -5px rgba(255, 105, 180, 0.35),
+                        0 0 15px rgba(255, 182, 193, 0.5);
+        }
+
+        /* 未解鎖關卡卡片 */
+        .locked-card {
+            background: rgba(240, 235, 240, 0.6);
+            backdrop-filter: blur(8px);
+            border: 2px dashed rgba(200, 180, 195, 0.5);
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .locked-card:hover {
+            background: rgba(235, 225, 235, 0.8);
+            border-color: #d1b3c4;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        /* 大頭貼邊框脈衝光 Glow 效果 */
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar-container::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff69b4, #ffb6c1, #ff1493);
+            z-index: -1;
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.6; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1.03); filter: blur(4px); }
+        }
+
+        /* 徽章亮光粉條 */
+        .badge-pink {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center px-4 py-8 relative text-gray-700">
+
+    <!-- 背景動態光暈 -->
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <main class="w-full max-w-5xl z-10 flex flex-col items-center">
+        
+        <section class="text-center mb-10 flex flex-col items-center">
+            <!-- 大頭貼區域 -->
+            <div class="avatar-container w-32 h-32 md:w-40 md:h-40 rounded-full mb-4 p-1 bg-white shadow-xl">
+                <img 
+                    src="https://i.postimg.cc/vHpJs9Tm/unnamed.jpg" 
+                    alt="個人大頭貼" 
+                    class="w-full h-full object-cover rounded-full shadow-inner"
+                />
+            </div>
+
+            <!-- 姓名與簡介 -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/80 text-pink-600 text-xs md:text-sm font-semibold mb-2 border border-pink-200 shadow-sm backdrop-blur-md">
+                <span>✨ 網頁程式設計作品集</span>
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-black text-gray-800 tracking-tight mb-2">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500">
+                    潘氏棉
+                </span> 🌸
+            </h1>
+            
+            <p class="text-gray-500 text-sm md:text-base max-w-md">
+                歡迎來到我的學習闖關基地！挑戰 16 週前端技能關卡。
+            </p>
+
+            <!-- 闖關進度條 -->
+            <div class="w-full max-w-xs mt-4 bg-white/60 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-pink-100">
+                <div class="flex justify-between text-xs text-gray-500 font-bold mb-1">
+                    <span>關卡解鎖進度</span>
+                    <span class="text-pink-500">2 / 16</span>
+                </div>
+                <div class="w-full bg-pink-100 h-2.5 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-pink-400 to-rose-500 h-full rounded-full" style="width: 12.5%;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                
+                <!-- 按鈕 1 (已解鎖) -->
+                <a href="w1/index.html" class="unlocked-card rounded-2xl p-5 flex flex-col justify-between group shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="badge-pink text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                            Week 01
+                        </span>
+                        <span class="text-lg group-hover:scale-125 transition-transform duration-300">💳</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg group-hover:text-pink-600 transition-colors">
+                            數位名片
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">個人簡介與個人風格切換</p>
+                    </div>
+                    <div class="mt-4 flex items-center text-xs font-bold text-pink-500 group-hover:translate-x-1 transition-transform">
+                        進入作品 <span class="ml-1">➔</span>
+                    </div>
+                </a>
+
+                <!-- 按鈕 2 (已解鎖) -->
+                <a href="w2/index.html" class="unlocked-card rounded-2xl p-5 flex flex-col justify-between group shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="badge-pink text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                            Week 02
+                        </span>
+                        <span class="text-lg group-hover:scale-125 transition-transform duration-300">🍱</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg group-hover:text-pink-600 transition-colors">
+                            今天吃甚麼?
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">美觀的隨機美食選擇器</p>
+                    </div>
+                    <div class="mt-4 flex items-center text-xs font-bold text-pink-500 group-hover:translate-x-1 transition-transform">
+                        進入作品 <span class="ml-1">➔</span>
+                    </div>
+                </a>
+
+                <!-- 按鈕 3 - 16 (未解鎖狀態) -->
+                <script>
+                    // 動態生成第 3 到第 16 個關卡按鈕
+                    const totalWeeks = 16;
+                    const container = document.currentScript.parentElement;
+
+                    for (let i = 3; i <= totalWeeks; i++) {
+                        const weekNum = i < 10 ? `0${i}` : i;
+                        const cardHTML = `
+                            <div class="locked-card rounded-2xl p-5 flex flex-col justify-between text-gray-400 select-none relative" onclick="showLockedToast(${i})">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="bg-gray-200 text-gray-500 text-xs font-bold px-2.5 py-1 rounded-lg">
+                                        Week ${weekNum}
+                                    </span>
+                                    <span class="text-base opacity-70">🔒</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-400 text-base">
+                                        Week ${i} - 尚未解鎖
+                                    </h3>
+                                    <p class="text-xs text-gray-400/70 mt-1">敬請期待後續任務...</p>
+                                </div>
+                                <div class="mt-4 flex items-center text-xs font-medium text-gray-400">
+                                    <span>鎖定中</span>
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', cardHTML);
+                    }
+                </script>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁尾資訊 -->
+    <footer class="w-full text-center py-6 text-xs text-pink-400/80 font-medium z-10 mt-8">
+        <p>© 2026 Web Development Portfolio • Designed with Pink Romance</p>
+    </footer>
+
+    <!-- 未解鎖點擊提示 Modal / Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50 flex items-center gap-2">
+        <span>🔒</span>
+        <span id="toast-message">該關卡尚未開放喔！完成前置任務再來吧！</span>
+    </div>
+
+    <!-- JS 功能強化 -->
+    <script>
+        function showLockedToast(week) {
+            const toast = document.getElementById('toast');
+            const message = document.getElementById('toast-message');
+            
+            message.textContent = `Week ${week} 關卡尚未解鎖，請繼續努力學習！💪`;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
