@@ -11,7 +11,7 @@
             --pink-bg: #fff0f5;
             --pink-primary: #ff69b4;
             --pink-hover: #ff1493;
-            --pink-glow: rgba(2ff, 105, 180, 0.4);
+            --pink-glow: rgba(255, 105, 180, 0.4);
         }
 
         body {
@@ -199,10 +199,10 @@
             <div class="w-full max-w-xs mt-4 bg-white/60 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-pink-100">
                 <div class="flex justify-between text-xs text-gray-500 font-bold mb-1">
                     <span>關卡解鎖進度</span>
-                    <span class="text-pink-500">2 / 16</span>
+                    <span class="text-pink-500">3 / 16</span>
                 </div>
                 <div class="w-full bg-pink-100 h-2.5 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-pink-400 to-rose-500 h-full rounded-full" style="width: 12.5%;"></div>
+                    <div class="bg-gradient-to-r from-pink-400 to-rose-500 h-full rounded-full" style="width: 18.75%;"></div>
                 </div>
             </div>
         </section>
@@ -248,13 +248,32 @@
                     </div>
                 </a>
 
-                <!-- 按鈕 3 - 16 (未解鎖狀態) -->
+                <!-- 按鈕 3 (已解鎖 - 迷因產生器) -->
+                <a href="w3/index.html" class="unlocked-card rounded-2xl p-5 flex flex-col justify-between group shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="badge-pink text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                            Week 03
+                        </span>
+                        <span class="text-lg group-hover:scale-125 transition-transform duration-300">🤡</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg group-hover:text-pink-600 transition-colors">
+                            迷因產生器
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">自訂圖片與文字製作趣味迷因</p>
+                    </div>
+                    <div class="mt-4 flex items-center text-xs font-bold text-pink-500 group-hover:translate-x-1 transition-transform">
+                        進入作品 <span class="ml-1">➔</span>
+                    </div>
+                </a>
+
+                <!-- 按鈕 4 - 16 (未解鎖狀態) -->
                 <script>
-                    // 動態生成第 3 到第 16 個關卡按鈕
+                    // 動態生成第 4 到第 16 個關卡按鈕
                     const totalWeeks = 16;
                     const container = document.currentScript.parentElement;
 
-                    for (let i = 3; i <= totalWeeks; i++) {
+                    for (let i = 4; i <= totalWeeks; i++) {
                         const weekNum = i < 10 ? `0${i}` : i;
                         const cardHTML = `
                             <div class="locked-card rounded-2xl p-5 flex flex-col justify-between text-gray-400 select-none relative" onclick="showLockedToast(${i})">
