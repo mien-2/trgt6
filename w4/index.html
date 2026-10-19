@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>朋友對我的動態留言板</title>
+  <!-- Google Fonts & Font Awesome 圖示 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ==================== CSS 變數與整體風格 ==================== */
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary-accent: #6366f1;
+      --secondary-accent: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ==================== 頁首與標題 ==================== */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ==================== 載入中動畫 ==================== */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 250px;
+      gap: 1.2rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--primary-accent);
+      border-right-color: var(--secondary-accent);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #loading p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ==================== 瀑布流排版 (Masonry Layout) ==================== */
+    .masonry-grid {
+      column-count: 3;
+      column-gap: 1.5rem;
+      display: none; /* 載入完成後顯示 */
+    }
+
+    /* 響應式斷點 */
+    @media (max-width: 900px) {
+      .masonry-grid {
+        column-count: 2;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .masonry-grid {
+        column-count: 1;
+      }
+    }
+
+    /* ==================== 留言卡片樣式 ==================== */
+    .card {
+      break-inside: avoid;
+      margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.25);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-main);
+    }
+
+    .timestamp {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-body {
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap; /* 保持原有的換行格式 */
+      word-break: break-word;
+    }
+
+    .quote-icon {
+      position: absolute;
+      right: 1rem;
+      bottom: 0.5rem;
+      font-size: 3rem;
+      color: rgba(255, 255, 255, 0.03);
+      pointer-events: none;
+    }
+
+    /* 空資料/錯誤提示 */
+    .message-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1><i class="fa-solid fa-comments"></i> 朋友對我的動態留言板</h1>
+      <p>即時串接 Google 試算表，記錄大家對我的悄悄話</p>
+    </header>
+
+    <!-- 載入中動畫 -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>讀取留言中...</p>
+    </div>
+
+    <!-- 瀑布流留言區域 -->
+    <div id="masonryGrid" class="masonry-grid"></div>
+  </div>
+
+  <script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCFpQcB2tDPsVG-_0MFC90lzlM9I75MK4v4SMMOOj8IzOjdJVihLxRgLXjVgs59wAJsOhivZtjFqdI/pub?output=csv';
+
+    /**
+     * 正確解析包含雙引號、逗號與換行符號的 RFC 4180 標準 CSV 解析器
+     * @param {string} text - CSV 文字內容
+     * @returns {Array<Array<string>>}
+     */
+    function parseCSV(text) {
+      const result = [];
+      let row = [];
+      let entry = '';
+      let insideQuote = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (insideQuote && nextChar === '"') {
+            // 處理雙雙引號 (轉義)
+            entry += '"';
+            i++;
+          } else {
+            // 切換雙引號狀態
+            insideQuote = !insideQuote;
+          }
+        } else if (char === ',' && !insideQuote) {
+          // 欄位結束
+          row.push(entry.trim());
+          entry = '';
+        } else if ((char === '\r' || char === '\n') && !insideQuote) {
+          // 列結束
+          if (char === '\r' && nextChar === '\n') {
+            i++; // 跳過 \r\n 中的 \n
+          }
+          row.push(entry.trim());
+          if (row.length > 0 && (row.length > 1 || row[0] !== '')) {
+            result.push(row);
+          }
+          row = [];
+          entry = '';
+        } else {
+          entry += char;
+        }
+      }
+
+      // 處理最後一行資料
+      if (entry || row.length > 0) {
+        row.push(entry.trim());
+        result.push(row);
+      }
+
+      return result;
+    }
+
+    /**
+     * 渲染留言卡片至畫面上
+     * @param {Array<Array<string>>} data 
+     */
+    function renderCards(data) {
+      const grid = document.getElementById('masonryGrid');
+      const loading = document.getElementById('loading');
+
+      // 隱藏載入中動畫，顯示網格
+      loading.style.display = 'none';
+      grid.style.display = 'block';
+
+      // 若只有標題列或無資料
+      if (data.length <= 1) {
+        grid.innerHTML = '<div class="message-state">目前還沒有任何留言喔！</div>';
+        return;
+      }
+
+      // 排除第一行標題列 (時間戳記, 名字, 悄悄話)
+      const rows = data.slice(1);
+
+      rows.forEach(row => {
+        // 欄位預設順序：[0]時間戳記, [1]名字, [2]悄悄話
+        const timestamp = row[0] || '未知時間';
+        const name = row[1] || '熱心朋友';
+        const message = row[2] || '（沒有留下訊息）';
+
+        // 取得名字第一個字作為 Avatar 顯示
+        const firstLetter = name.charAt(0).toUpperCase();
+
+        // 建立卡片 DOM 節點
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="avatar">${firstLetter}</div>
+            <div class="user-info">
+              <div class="user-name">${escapeHTML(name)}</div>
+              <div class="timestamp"><i class="fa-regular fa-clock"></i> ${escapeHTML(timestamp)}</div>
+            </div>
+          </div>
+          <div class="card-body">${escapeHTML(message)}</div>
+          <i class="fa-solid fa-quote-right quote-icon"></i>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    /**
+     * XSS 防護：轉換特殊字元
+     * @param {string} str 
+     * @returns {string}
+     */
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * 讀取 CSV 資料
+     */
+    async function fetchMessages() {
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
+        }
+        const csvText = await response.text();
+        const parsedData = parseCSV(csvText);
+        renderCards(parsedData);
+      } catch (error) {
+        console.error('讀取留言失敗：', error);
+        const loading = document.getElementById('loading');
+        loading.innerHTML = `
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #ef4444;"></i>
+          <p style="color: #ef4444;">讀取留言失敗，請稍後再試。</p>
+        `;
+      }
+    }
+
+    // 頁面載入完成後執行
+    document.addEventListener('DOMContentLoaded', fetchMessages);
+  </script>
+</body>
+</html>
