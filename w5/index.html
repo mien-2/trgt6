@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen</title>
+  </head>
+  <body>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雲端心電感應 🌸 多人默契大考驗</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Fluent cute font -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif, system-ui;
+        }
+
+        /* 3D Card Flip CSS */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        /* Custom Animations & Effects */
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-pink {
+            0%, 100% { box-shadow: 0 0 15px rgba(244, 114, 182, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(244, 114, 182, 0.8); }
+        }
+        .pulse-pink-glow {
+            animation: pulse-pink 2.5s infinite;
+        }
+
+        /* Cute Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fce7f3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f472b6;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-rose-50 to-pink-200 min-h-screen text-slate-700 flex flex-col justify-between selection:bg-pink-300 selection:text-pink-900">
+
+    <!-- Header Navigation -->
+    <header class="w-full max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+            <span class="text-3xl animate-bounce-subtle">🌸</span>
+            <h1 class="text-2xl md:text-3xl font-black text-pink-600 tracking-wide drop-shadow-sm">
+                雲端心電感應 <span class="text-xs bg-pink-500 text-white px-2 py-1 rounded-full font-normal">v2.0</span>
+            </h1>
+        </div>
+
+        <!-- Room info & Hidden Host Secret Button -->
+        <div class="flex items-center gap-3">
+            <!-- Room & Player Pill (Hidden initially) -->
+            <div id="room-badge" class="hidden flex items-center bg-white/80 backdrop-blur border border-pink-200 shadow-sm rounded-full px-4 py-1.5 text-xs md:text-sm text-pink-700 gap-3">
+                <span><i class="fa-solid font-bold text-pink-400 fa-door-open"></i> 房號: <strong id="badge-room-id" class="text-pink-600 font-extrabold">---</strong></span>
+                <span class="text-pink-200">|</span>
+                <span><i class="fa-solid text-pink-400 fa-user-tag"></i> <span id="badge-player-name">---</span></span>
+            </div>
+
+            <!-- Polling Indicator -->
+            <div id="polling-status" class="hidden flex items-center gap-1.5 bg-white/80 backdrop-blur border border-pink-200 rounded-full px-3 py-1.5 text-xs text-pink-600">
+                <span id="polling-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 transition-colors duration-300"></span>
+                <span id="polling-text" class="hidden md:inline font-bold">連線中</span>
+            </div>
+
+            <!-- Secret Crown Host Toggle Button -->
+            <button id="secret-host-btn" onclick="toggleHostPanel()" title="連點切換房主控制台 ✨" class="relative group bg-white hover:bg-pink-50 text-pink-500 p-2.5 rounded-full shadow-md border border-pink-200 transition-all hover:scale-110 active:scale-95">
+                <i class="fa-solid fa-crown text-xl text-amber-400 group-hover:rotate-12 transition-transform"></i>
+                <span id="host-indicator-dot" class="hidden absolute top-0 right-0 w-3 h-3 bg-rose-500 border-2 border-white rounded-full"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-4xl mx-auto px-4 py-4 flex-grow flex flex-col justify-center items-center">
+
+        <!-- HOST CONTROL PANEL (Hidden Modal/Drawer by Default) -->
+        <div id="host-panel" class="hidden w-full bg-gradient-to-r from-amber-50 via-rose-50 to-pink-50 border-2 border-dashed border-pink-300 rounded-3xl p-5 md:p-6 mb-6 shadow-lg transition-all">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-pink-200">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👑</span>
+                    <h2 class="text-lg font-bold text-pink-700">房主控制台 (Host Manager)</h2>
+                    <span class="bg-pink-500 text-white text-xs px-2.5 py-0.5 rounded-full font-bold">隱藏權限已啟用</span>
+                </div>
+                <button onclick="toggleHostPanel()" class="text-pink-400 hover:text-pink-600 text-sm font-bold">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <!-- Question Input -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-pink-600 mb-1">✍️ 出題內容 (Host Question)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="host-question-input" placeholder="例如：提到夏天會聯想到什麼水果？" 
+                            class="w-full px-4 py-2.5 rounded-2xl border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white">
+                        <button onclick="hostSetQuestion()" class="whitespace-nowrap bg-pink-500 hover:bg-pink-600 text-white font-bold px-5 py-2.5 rounded-2xl shadow-md transition-all active:scale-95 text-sm flex items-center gap-1">
+                            <i class="fa-solid fa-paper-plane"></i> 發佈題目
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Host Quick Actions -->
+                <div class="flex gap-2">
+                    <button onclick="hostReveal()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold py-2.5 px-3 rounded-2xl shadow-md transition-all active:scale-95 text-sm flex justify-center items-center gap-1">
+                        <i class="fa-solid fa-eye"></i> 揭曉開牌
+                    </button>
+                    <button onclick="hostReset()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-2.5 px-4 rounded-2xl border border-rose-300 shadow-sm transition-all text-sm flex justify-center items-center gap-1" title="重置為下一題">
+                        <i class="fa-solid fa-rotate-left"></i> 重置
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between text-xs text-pink-600 font-medium bg-white/60 px-3 py-1.5 rounded-xl">
+                <span><i class="fa-solid fa-users text-pink-400"></i> 目前已作答人數: <strong id="host-answered-count" class="text-pink-700 text-sm">0</strong> 人</span>
+                <span>💡 提示：點擊右上角皇冠圖示可關閉/打開此控制面板</span>
+            </div>
+        </div>
+
+        <!-- PAGE 1: JOIN / CREATE ROOM -->
+        <section id="page-join" class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl border-4 border-pink-200 text-center transition-all">
+            <div class="w-20 h-20 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-inner">
+                🔮
+            </div>
+            <h2 class="text-2xl font-black text-pink-600 mb-1">開始默契大挑戰</h2>
+            <p class="text-xs text-pink-400 mb-6">輸入暱稱與房號，和朋友連線心電感應！</p>
+
+            <form onsubmit="handleJoinRoom(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-pink-600 mb-1.5">👤 玩家暱稱 (Name)</label>
+                    <input type="text" id="input-player-name" required maxlength="12" placeholder="請輸入你的暱稱 (例如: 小粉紅)" 
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:ring-0 text-slate-700 font-bold bg-pink-50/30">
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-pink-600">🏠 房間代碼 (Room ID)</label>
+                        <button type="button" onclick="generateRandomRoom()" class="text-xs text-pink-500 hover:text-pink-700 underline font-bold">
+                            ✨ 隨機產生房號
+                        </button>
+                    </div>
+                    <input type="text" id="input-room-id" required placeholder="例如: 8888 或 甜心房" 
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:ring-0 text-slate-700 font-bold bg-pink-50/30">
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-black text-lg rounded-2xl shadow-lg shadow-pink-300/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                    進入遊戲房間 🚀
+                </button>
+            </form>
+        </section>
+
+        <!-- PAGE 2: GAMEPLAY AREA -->
+        <section id="page-game" class="hidden w-full flex flex-col items-center">
+            
+            <!-- STAGE 1: SETUP (Waiting for Host) -->
+            <div id="stage-setup" class="w-full max-w-lg bg-white/90 backdrop-blur border-4 border-pink-200 rounded-3xl p-8 text-center shadow-xl">
+                <div class="text-6xl mb-4 animate-bounce-subtle">⌛</div>
+                <h3 class="text-xl font-black text-pink-600 mb-2">房主準備出題中...</h3>
+                <p class="text-sm text-slate
